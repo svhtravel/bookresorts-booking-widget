@@ -1654,8 +1654,9 @@ setTimeout(() => {
   return; // ⛔ STOP — do NOT continue to pricing
 }
 
+const lockedBooking = JSON.parse(container.dataset.pendingBooking || "{}");
 
-if(!lockedBooking.checkIn || !lockedBooking.checkOut){
+if (!lockedBooking.checkIn || !lockedBooking.checkOut) {
   console.error("Booking data missing", lockedBooking);
   return;
 }
