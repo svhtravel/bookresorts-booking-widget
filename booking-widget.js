@@ -16,9 +16,9 @@
     worker: script?.dataset.worker || ""
   };
 
-  // Ensure popup container exists
+// Ensure popup container exists
 let container = document.getElementById("booking-popup");
-  if (!container) {
+if (!container) {
   container = document.createElement("div");
   container.id = "booking-popup";
   document.body.appendChild(container);
