@@ -2336,8 +2336,60 @@ const root = document.getElementById("brp-root");
   // Re-run your full init logic (dates, rooms, pills, airports, validation, etc.)
   initBookingPopup();
 };
+     // Allow external prefill + skip
+window.__BRP_START_FROM_PREFILL__ = function () {
+  const root = document.getElementById("brp-root");
+  if (!root || !root.dataset.prefill) return;
+
+  try {
+    const data = JSON.parse(root.dataset.prefill);
+
+    showLoadingLeadForm({
+      bookingType: data.bookingType || "Hotel Only",
+      checkIn: data.checkIn,
+      checkOut: data.checkOut,
+      departure: data.departure || "",
+      rooms: data.rooms || [{ adults: 2, children: 0 }]
+    });
+  } catch (e) {
+    console.warn("Prefill failed", e);
+  }
+};
+
   
   })();
+
+// ============================================================
+// EXTERNAL CONTROL API (SAFE)
+// ============================================================
+
+window.BRJ = window.BRJ || {};
+
+// Open popup (Elementor-safe)
+window.BRJ.open = function () {
+  if (window.elementorProFrontend?.modules?.popup) {
+    try {
+      elementorProFrontend.modules.popup.showPopup({ id: 2991 }); // <-- popup ID
+      return;
+    } catch (e) {}
+  }
+
+  // fallback: click first Book Now button
+  const btn = document.querySelector('[data-br-open], .book-now, .open-booking');
+  if (btn) btn.click();
+};
+
+// Inject booking data + jump to step 2
+window.BRJ.injectBooking = function (data = {}) {
+  const root = document.getElementById("brp-root");
+  if (!root) return;
+
+  root.dataset.prefill = JSON.stringify(data);
+
+  if (typeof window.__BRP_START_FROM_PREFILL__ === "function") {
+    window.__BRP_START_FROM_PREFILL__();
+  }
+};
 
 
 })();
