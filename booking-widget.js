@@ -24,7 +24,16 @@
     document.body.appendChild(root);
   }
 
-   // ============================================================
+  // 🔤 LOAD GOOGLE FONT (EXACT LOCATION)
+  if (!document.getElementById("brp-font-lora")) {
+    const link = document.createElement("link");
+    link.id = "brp-font-lora";
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&display=swap";
+    document.head.appendChild(link);
+  }
+
+  // ============================================================
   // BOOKING POPUP INJECTION (CSS + HTML + LOGIC)
   // ============================================================
 
@@ -553,7 +562,7 @@
 
 </div>
 
-<div id="booking-popup">
+<div id="brp-root">
     <h3 class="brp-title">BOOK YOUR GETAWAY</h3>
 
 
@@ -624,7 +633,7 @@ let __BRP_TEMPLATE_HTML__ = null;
 
   function initBookingPopup() {
 
-    const root = document.getElementById('booking-popup');
+const root = document.getElementById('brp-root');
     if (!root) return;
 
 // ✅ Store the original form markup only the first time init runs
@@ -2318,7 +2327,7 @@ if (errorBox) {
 
 // ♻️ Expose reset hook (restore template + re-init)
 window.__BRP_RESET__ = function () {
-  const root = document.getElementById("booking-popup");
+const root = document.getElementById("brp-root");
   if (!root || !__BRP_TEMPLATE_HTML__) return;
 
   // Restore the original booking form DOM
