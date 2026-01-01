@@ -1121,9 +1121,9 @@ const LOCKED_BOOKING = {
 
 
 
-root.dataset.pendingBooking = JSON.stringify(LOCKED_BOOKING);
+container.dataset.pendingBooking = JSON.stringify(LOCKED_BOOKING);
 
-    root.innerHTML = `
+    container.innerHTML = `
       <div class="brp-lead-wrap">
         <div class="brp-spinner" aria-label="Loading"></div>
         <div class="brp-rotator" id="brp-rotator">${ROTATE_PHRASES[0]}</div>
@@ -1340,7 +1340,7 @@ const phone = `${countryCode} ${rawPhone}`;
       submitBtn.disabled = true;
       submitBtn.textContent = "Submitting...";
 
-const lockedBooking = JSON.parse(root.dataset.pendingBooking || "{}");
+const lockedBooking = JSON.parse(container.dataset.pendingBooking || "{}");
 const bookingType = lockedBooking.bookingType;
 
 
@@ -1526,7 +1526,7 @@ setTimeout(() => {
   const display = document.getElementById("confirm-phone-display");
   const confirmArea = document.getElementById("phone-confirmation-area");
   const countrySelect = document.getElementById("confirm-country-code");
-  const lockedBooking = JSON.parse(root.dataset.pendingBooking || "{}");
+  const lockedBooking = JSON.parse(container.dataset.pendingBooking || "{}");
 
   if (!display || !input || !countrySelect) return;
 
@@ -1711,7 +1711,7 @@ const workerUrl =
       clearInterval(rotateTimer);
 
 // show loading while worker runs
-root.innerHTML = `
+container.innerHTML = `
   <div class="brp-lead-wrap">
     <div class="brp-spinner"></div>
     <div class="brp-rotator">Comparing the best available rates…</div>
@@ -1740,7 +1740,7 @@ if (!results || !results.length) {
 }
 
 // ✅ Rates found — render results
-root.innerHTML = `
+container.innerHTML = `
   <div class="brp-lead-wrap">
 <div class="brp-success">
   Well done, ${name} — you’re officially getting the best deal.
