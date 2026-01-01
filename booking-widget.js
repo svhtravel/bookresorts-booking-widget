@@ -17,12 +17,12 @@
   };
 
   // Ensure popup container exists
-  let root = document.getElementById("booking-popup");
-  if (!root) {
-    root = document.createElement("div");
-    root.id = "booking-popup";
-    document.body.appendChild(root);
-  }
+let container = document.getElementById("booking-popup");
+  if (!container) {
+  container = document.createElement("div");
+  container.id = "booking-popup";
+  document.body.appendChild(container);
+}
 
   // 🔤 LOAD GOOGLE FONT (EXACT LOCATION)
   if (!document.getElementById("brp-font-lora")) {
@@ -52,7 +52,7 @@
         --radius: 12px;
     }
 
-    #booking-popup {
+    #brp-root {
         font-family: 'Lora', serif !important;
         color: var(--ink);
         width: 100%;
@@ -166,11 +166,11 @@
     }
 
     /* === Departure white dropdown === */
-    #booking-popup #departure_city_container.dep-suggest-wrap {
+    #brp-root #departure_city_container.dep-suggest-wrap {
         position: relative;
     }
 
-    #booking-popup .dep-suggest {
+    #brp-root .dep-suggest {
         position: absolute;
         top: 100%;
         left: 0;
@@ -187,7 +187,7 @@
         display: none;
     }
 
-    #booking-popup .dep-s-item {
+    #brp-root .dep-s-item {
         padding: 10px 12px;
         cursor: pointer;
         display: flex;
@@ -195,15 +195,15 @@
         gap: 2px;
     }
 
-    #booking-popup .dep-s-item:hover {
+    #brp-root .dep-s-item:hover {
         background: #f6f6f6;
     }
 
-    #booking-popup .dep-s-name {
+    #brp-root .dep-s-name {
         font-weight: 700;
     }
 
-    #booking-popup .dep-s-meta {
+    #brp-root .dep-s-meta {
         font-size: 12px;
         color: #666;
     }
@@ -412,11 +412,11 @@
     }
 
     /* Kill any third-party dark suggestion panel inside popup */
-    #booking-popup .autocomplete-suggestions,
-    #booking-popup .autocomplete-panel,
-    #booking-popup .awesomplete,
-    #booking-popup .ui-autocomplete,
-    #booking-popup #airport_suggestions {
+    #brp-root .autocomplete-suggestions,
+    #brp-root .autocomplete-panel,
+    #brp-root .awesomplete,
+    #brp-root .ui-autocomplete,
+    #brp-root #airport_suggestions {
         display: none !important;
     }
 
@@ -539,7 +539,7 @@
   }
 
   // 2) HTML (render into container)
-  root.innerHTML = `
+container.innerHTML = `
 
   <div id="brp-error" style="
     display:none;
