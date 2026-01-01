@@ -2376,7 +2376,7 @@ window.BRJ.open = function () {
   }
 
   // fallback: click first Book Now button
-  const btn = document.querySelector('[data-br-open], .book-now, .open-booking');
+const btn = document.querySelector('.book-now-global');
   if (btn) btn.click();
 };
 
