@@ -1319,7 +1319,7 @@ phoneInput.addEventListener("input", () => {
       e.preventDefault();
 
       const name = document.getElementById("brp-lead-name").value.trim();
-      root.dataset.leadName = name;
+      container.dataset.leadName = name;
 const rawPhone = document.getElementById("brp-lead-phone").value.trim();
 const countryCode = document.getElementById("brp-country-code").value;
 
@@ -1389,7 +1389,7 @@ if (bookingType === "Hotel + Flight") {
 
   }, 0);
 
-root.dataset.leadName = name;
+container.dataset.leadName = name;
 
   // ✅ FINAL RECAP UI (NO PRICING)
   root.innerHTML = `
@@ -1617,7 +1617,7 @@ setTimeout(() => {
   setTimeout(() => {
     const payload = {
       event: "phone_updated",
-      name: root.dataset.leadName || "",
+      name: container.dataset.leadName || "",
       phone: fullPhone,
       booking_type: lockedBooking.bookingType,
       hotel_name: getWordPressSiteTitle(),
@@ -1932,7 +1932,7 @@ setTimeout(() => {
   setTimeout(() => {
     const payload = {
       event: "phone_updated",
-      name: root.dataset.leadName || "",
+      name: container.dataset.leadName || "",
       phone: fullPhone,
       booking_type: lockedBooking.bookingType || "Hotel Only",
       hotel_name: getWordPressSiteTitle(),
