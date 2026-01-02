@@ -648,6 +648,27 @@ let __BRP_TEMPLATE_HTML__ = null;
 
   function initBookingPopup() {
 
+     // 🔁 Consume booking-bar prefill if present
+if (window.__BRP_PREFILL__) {
+  try {
+    const data = window.__BRP_PREFILL__;
+    window.__BRP_PREFILL__ = null;
+
+    showLoadingLeadForm({
+      bookingType: data.bookingType || "Hotel Only",
+      checkIn: data.checkIn,
+      checkOut: data.checkOut,
+      departure: data.departure || "",
+      rooms: data.rooms || [{ adults: 2, children: 0 }]
+    });
+
+    return; // ⛔ stop normal init flow
+  } catch (e) {
+    console.warn("Failed to consume booking-bar prefill", e);
+  }
+}
+
+
 const root = document.getElementById('brp-root');
 if (!root) {
   console.warn("brp-root not found yet");
@@ -2185,7 +2206,7 @@ summary.addEventListener('click',()=>{
     pills.forEach(l=>l.classList.remove('is-active'));
     if(r.checked) pills[i].classList.add('is-active');
     toggleDep();
-    enforceRoomsRules();
+setTimeout(() => enforceRoomsRules(), 0);
   }));
   toggleDep();
   enforceRoomsRules();
@@ -2371,7 +2392,12 @@ if (errorBox) {
   } // ⬅️ END initBookingPopup
 
   // ▶️ Run once on initial load (same as today)
-setTimeout(initBookingPopup, 0);
+const waitForPopup = setInterval(() => {
+  if (document.getElementById("brp-root")) {
+    clearInterval(waitForPopup);
+    initBookingPopup();
+  }
+}, 50);
 
 // ♻️ Expose reset hook (restore template + re-init)
 window.__BRP_RESET__ = function () {
@@ -2381,25 +2407,6 @@ const root = document.getElementById("brp-root");
   // Restore the original booking form DOM
   root.innerHTML = __BRP_TEMPLATE_HTML__;
 
-};
-     // Allow external prefill + skip
-window.__BRP_START_FROM_PREFILL__ = function () {
-  const root = document.getElementById("brp-root");
-  if (!root || !root.dataset.prefill) return;
-
-  try {
-    const data = JSON.parse(root.dataset.prefill);
-
-    showLoadingLeadForm({
-      bookingType: data.bookingType || "Hotel Only",
-      checkIn: data.checkIn,
-      checkOut: data.checkOut,
-      departure: data.departure || "",
-      rooms: data.rooms || [{ adults: 2, children: 0 }]
-    });
-  } catch (e) {
-    console.warn("Prefill failed", e);
-  }
 };
 
 
