@@ -4,6 +4,8 @@
 
 (function () {
 
+   let lockedBooking = null;
+
   // Prevent loading twice
   if (window.__BOOKRESORTS_WIDGET_LOADED__) return;
   window.__BOOKRESORTS_WIDGET_LOADED__ = true;
@@ -1342,7 +1344,7 @@ const phone = `${countryCode} ${rawPhone}`;
       submitBtn.disabled = true;
       submitBtn.textContent = "Submitting...";
 
-const lockedBooking = JSON.parse(container.dataset.pendingBooking || "{}");
+lockedBooking = JSON.parse(container.dataset.pendingBooking || "{}");
 const bookingType = lockedBooking.bookingType;
 
 
@@ -2066,19 +2068,17 @@ setTimeout(() => {
 }
 
 function enforceRoomsRules(){
-  // Always ensure at least one room
+  if (!addBtn || !roomsWrap) return;
+
   if (!rooms.length) {
     rooms = [{ adults: Math.min(2, ACTIVE_MAX_ADULTS), children: 0 }];
   }
 
-  // Room adding is controlled ONLY by ACTIVE_MAX_ROOMS
   addBtn.style.display = "inline-block";
-
   renderRooms();
   refreshSummary();
   updateAddRoomState();
 }
-
 
 summary.addEventListener('click',()=>{
   shell.classList.toggle('is-open');
@@ -2326,7 +2326,7 @@ if (errorBox) {
   } // ⬅️ END initBookingPopup
 
   // ▶️ Run once on initial load (same as today)
-  initBookingPopup();
+setTimeout(initBookingPopup, 0);
 
 // ♻️ Expose reset hook (restore template + re-init)
 window.__BRP_RESET__ = function () {
@@ -2337,7 +2337,7 @@ const root = document.getElementById("brp-root");
   root.innerHTML = __BRP_TEMPLATE_HTML__;
 
   // Re-run your full init logic (dates, rooms, pills, airports, validation, etc.)
-  initBookingPopup();
+setTimeout(initBookingPopup, 0);
 };
      // Allow external prefill + skip
 window.__BRP_START_FROM_PREFILL__ = function () {
