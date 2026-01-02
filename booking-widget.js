@@ -2439,8 +2439,5 @@ window.BRJ.injectBooking = function (data = {}) {
     window.__BRP_START_FROM_PREFILL__();
   }
 };
-
-// ▶️ Run booking widget AFTER HTML + popup exist
-setTimeout(initBookingPopup, 0);
    
 })();
