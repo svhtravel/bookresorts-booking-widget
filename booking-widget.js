@@ -624,6 +624,20 @@ container.innerHTML = `
             </div>
         </div>
     </div>
+
+        <!-- CTA -->
+<button id="brp-check-btn" class="check-availability-btn">
+  Check Availability
+</button>
+
+<!-- Value Points -->
+<div class="brp-points">
+  <span><i class="brp-dot"></i><b>Lowest Price Guaranteed</b></span>
+  <span><i class="brp-dot"></i><b>Complimentary Perks</b></span>
+  <span><i class="brp-dot"></i><b>No Hidden Fees</b></span>
+</div>
+
+
   
   `.trim();
 
@@ -647,6 +661,30 @@ if (!__BRP_TEMPLATE_HTML__) {
 
   const q  = sel => root.querySelector(sel);
   const qa = sel => [...root.querySelectorAll(sel)];
+
+// ===== Default dates (today + 3 nights) =====
+const checkin = q('#checkin_field');
+const checkout = q('#checkout_field');
+
+if (checkin && checkout) {
+  const today = new Date();
+
+  const toISO = d => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  const plus3 = new Date(today);
+  plus3.setDate(plus3.getDate() + 3);
+
+  checkin.min = toISO(today);
+  checkin.value = toISO(today);
+
+  checkout.min = toISO(today);
+  checkout.value = toISO(plus3);
+}
 
   /* =========================
      CONFIG (optional later)
@@ -2326,6 +2364,8 @@ if (errorBox) {
       departure: (type==="Hotel + Flight") ? (depInput.value || "") : "",
       rooms: rooms
     });
+
+     
 
     
   });
