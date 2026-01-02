@@ -2382,8 +2382,6 @@ const root = document.getElementById("brp-root");
   // Restore the original booking form DOM
   root.innerHTML = __BRP_TEMPLATE_HTML__;
 
-  // Re-run your full init logic (dates, rooms, pills, airports, validation, etc.)
-setTimeout(initBookingPopup, 0);
 };
      // Allow external prefill + skip
 window.__BRP_START_FROM_PREFILL__ = function () {
