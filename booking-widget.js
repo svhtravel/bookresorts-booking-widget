@@ -793,8 +793,6 @@ async function getHotelIdFromSheet(siteTitle) {
 // ✅ IMPORTANT: re-check add room state now that limits exist
   enforceRoomsRules();
 
-})();
-
 
   /* =========================
      Helpers: dates (LOCAL-safe)
@@ -2109,20 +2107,18 @@ setTimeout(() => {
 }
 
 function enforceRoomsRules(){
-  if (!addBtn) return;
+  // ⛔ DOM not ready yet — exit safely
+  if (!addBtn || !roomsWrap || !roomsCountEl || !guestsCountEl) {
+    return;
+  }
 
+  // Always ensure at least one room
   if (!rooms.length) {
     rooms = [{ adults: Math.min(2, ACTIVE_MAX_ADULTS), children: 0 }];
   }
 
   addBtn.style.display = "inline-block";
 
-  renderRooms();
-  refreshSummary();
-  updateAddRoomState();
-}
-
-  addBtn.style.display = "inline-block";
   renderRooms();
   refreshSummary();
   updateAddRoomState();
@@ -2444,5 +2440,7 @@ window.BRJ.injectBooking = function (data = {}) {
   }
 };
 
-
+// ▶️ Run booking widget AFTER HTML + popup exist
+setTimeout(initBookingPopup, 0);
+   
 })();
