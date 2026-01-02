@@ -646,11 +646,10 @@ container.innerHTML = `
 // ✅ Capture the original booking form HTML ONCE (before any spinner replaces it)
 let __BRP_TEMPLATE_HTML__ = null;
 
-  function initBookingPopup() {
+function initBookingPopup() {
 
-     // 🔁 Consume booking-bar prefill if present
-if (window.__BRP_PREFILL__) {
-  try {
+  // ✅ Prefill (TOP ONLY)
+  if (window.__BRP_PREFILL__) {
     const data = window.__BRP_PREFILL__;
     window.__BRP_PREFILL__ = null;
 
@@ -662,18 +661,15 @@ if (window.__BRP_PREFILL__) {
       rooms: data.rooms || [{ adults: 2, children: 0 }]
     });
 
-    return; // ⛔ stop normal init flow
-  } catch (e) {
-    console.warn("Failed to consume booking-bar prefill", e);
+    return;
   }
-}
 
-
-const root = document.getElementById('brp-root');
-if (!root) {
-  console.warn("brp-root not found yet");
-  return;
-}
+  // ✅ root MUST be inside the function
+  const root = document.getElementById('brp-root');
+  if (!root) {
+    console.warn("brp-root not found yet");
+    return;
+  }
 
 // ✅ Store the original form markup only the first time init runs
 if (!__BRP_TEMPLATE_HTML__) {
@@ -1172,6 +1168,7 @@ function renderComparisonResults(results, name, phone){
   let rotateTimer = null;
 
   function showLoadingLeadForm(payload){
+     
     // store booking details so we can attach them to the lead submit
 // HARD LOCK booking data BEFORE DOM is replaced
 const LOCKED_BOOKING = {
@@ -2430,16 +2427,10 @@ const btn = document.querySelector('.book-now-global');
   if (btn) btn.click();
 };
 
-// Inject booking data + jump to step 2
 window.BRJ.injectBooking = function (data = {}) {
-  const root = document.getElementById("brp-root");
-  if (!root) return;
-
-  root.dataset.prefill = JSON.stringify(data);
-
-  if (typeof window.__BRP_START_FROM_PREFILL__ === "function") {
-    window.__BRP_START_FROM_PREFILL__();
-  }
+  window.__BRP_PREFILL__ = data;
+  window.BRJ.open();
 };
+
    
 })();
