@@ -2068,11 +2068,18 @@ setTimeout(() => {
 }
 
 function enforceRoomsRules(){
-  if (!addBtn || !roomsWrap) return;
+  if (!addBtn) return;
 
   if (!rooms.length) {
     rooms = [{ adults: Math.min(2, ACTIVE_MAX_ADULTS), children: 0 }];
   }
+
+  addBtn.style.display = "inline-block";
+
+  renderRooms();
+  refreshSummary();
+  updateAddRoomState();
+}
 
   addBtn.style.display = "inline-block";
   renderRooms();
