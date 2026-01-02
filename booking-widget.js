@@ -664,23 +664,6 @@ function initBookingPopup() {
     return;
   }
 
-  // ✅ root MUST be inside the function
-  const root = document.getElementById('brp-root');
-  if (!root) {
-    console.warn("brp-root not found yet");
-    return;
-  }
-
-// ✅ Store the original form markup only the first time init runs
-if (!__BRP_TEMPLATE_HTML__) {
-  __BRP_TEMPLATE_HTML__ = root.innerHTML;
-}
-
-  if(!root) return;
-
-  const q  = sel => root.querySelector(sel);
-  const qa = sel => [...root.querySelectorAll(sel)];
-
 // ===== Default dates (today + 3 nights) =====
 const checkin = q('#checkin_field');
 const checkout = q('#checkout_field');
