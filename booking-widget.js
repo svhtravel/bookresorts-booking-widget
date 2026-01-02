@@ -642,7 +642,6 @@ container.innerHTML = `
   `.trim();
 
   // 3) JS logic (run after HTML exists)
-  (function () {
 
 // ✅ Capture the original booking form HTML ONCE (before any spinner replaces it)
 let __BRP_TEMPLATE_HTML__ = null;
@@ -2403,8 +2402,6 @@ window.__BRP_START_FROM_PREFILL__ = function () {
   }
 };
 
-  
-  })();
 
 // ============================================================
 // EXTERNAL CONTROL API (SAFE)
