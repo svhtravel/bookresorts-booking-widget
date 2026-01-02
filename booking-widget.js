@@ -820,6 +820,8 @@ return [];
   }
 
   function updateAddRoomState(){
+  if (!addBtn) return;
+
   if (rooms.length >= ACTIVE_MAX_ROOMS) {
     addBtn.disabled = true;
     addBtn.style.opacity = "0.5";
@@ -1526,7 +1528,7 @@ setTimeout(() => {
   const display = document.getElementById("confirm-phone-display");
   const confirmArea = document.getElementById("phone-confirmation-area");
   const countrySelect = document.getElementById("confirm-country-code");
-  const lockedBooking = JSON.parse(container.dataset.pendingBooking || "{}");
+lockedBooking = JSON.parse(container.dataset.pendingBooking || "{}");
 
   if (!display || !input || !countrySelect) return;
 
@@ -1654,7 +1656,7 @@ setTimeout(() => {
   return; // ⛔ STOP — do NOT continue to pricing
 }
 
-const lockedBooking = JSON.parse(container.dataset.pendingBooking || "{}");
+lockedBooking = JSON.parse(container.dataset.pendingBooking || "{}");
 
 if (!lockedBooking.checkIn || !lockedBooking.checkOut) {
   console.error("Booking data missing", lockedBooking);
