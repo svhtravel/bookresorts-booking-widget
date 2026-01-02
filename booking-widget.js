@@ -650,7 +650,10 @@ let __BRP_TEMPLATE_HTML__ = null;
   function initBookingPopup() {
 
 const root = document.getElementById('brp-root');
-    if (!root) return;
+if (!root) {
+  console.warn("brp-root not found yet");
+  return;
+}
 
 // ✅ Store the original form markup only the first time init runs
 if (!__BRP_TEMPLATE_HTML__) {
