@@ -45,7 +45,6 @@
       margin: 4px 0 22px;
     }
 
-    /* Pills */
     .brp-pills {
       display: flex;
       justify-content: center;
@@ -91,7 +90,6 @@
       transform: translateY(1px)
     }
 
-    /* Grid */
     .brp-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -113,7 +111,6 @@
       letter-spacing: .08em
     }
 
-    /* Inputs */
     .brp-input {
       height: var(--input-h);
       line-height: var(--input-h);
@@ -189,7 +186,6 @@
       margin-top: 4px
     }
 
-    /* Inline Rooms & Guests */
     .rg-inline {
       border: 1px solid rgba(0, 0, 0, .15);
       border-radius: var(--radius);
@@ -342,7 +338,6 @@
       transform: translateY(1px)
     }
 
-    /* CTA & callouts */
     .check-availability-btn {
       width: 100%;
       height: var(--input-h);
@@ -407,7 +402,6 @@
       }
     }
 
-    /* Loading + Lead Form */
     .brp-lead-wrap {
       width: 100%;
       display: flex;
@@ -508,7 +502,6 @@
       max-width: 520px;
     }
 
-    /* Error Box */
     #brp-error {
       display: none;
       margin: 16px auto 8px;
@@ -535,7 +528,6 @@
 <div id="booking-popup">
   <h3 class="brp-title">BOOK YOUR GETAWAY</h3>
 
-  <!-- Booking Type -->
   <div class="brp-pills">
     <label class="brp-pill is-active">
       <input type="radio" name="booking_type" value="Hotel Only" checked required> Hotel Only
@@ -545,7 +537,6 @@
     </label>
   </div>
 
-  <!-- Dates -->
   <div class="brp-grid">
     <div class="brp-field" id="ci-wrap">
       <div class="brp-label">Check In</div>
@@ -557,14 +548,12 @@
     </div>
   </div>
 
-  <!-- Departure City -->
   <div id="departure_city_container" class="brp-field" style="display:none;">
     <div class="brp-label">Departure City</div>
     <input id="departure_city_field" type="text" placeholder="Type city or IATA (e.g., LAX, JFK, MIA)" class="brp-input" autocomplete="off">
     <div class="datalist-note"></div>
   </div>
 
-  <!-- Rooms & Guests -->
   <div class="brp-field">
     <div class="brp-label">Rooms & Guests</div>
     <div class="rg-inline" id="rg-inline">
@@ -592,10 +581,8 @@
     </div>
   </div>
 
-  <!-- Submit -->
   <button class="check-availability-btn" id="brp-check-btn">Check Availability</button>
 
-  <!-- Callouts -->
   <div class="brp-points">
     <span><i class="brp-dot"></i><b>Lowest Price Guaranteed</b></span>
     <span><i class="brp-dot"></i><b>Complimentary Perks & Upgrades</b></span>
@@ -603,57 +590,7 @@
 </div>
 
 <script>
-
-// CRITICAL FIX: Define openBookingWidget globally
-window.openBookingWidget = function() {
-  console.log('✅ openBookingWidget called');
-  
-  const root = document.getElementById('booking-popup');
-  if (!root) {
-    console.error('❌ booking-popup element not found');
-    return;
-  }
-
-  // Reset any error states
-  sessionStorage.removeItem("brp_no_rates_error");
-  const errorBox = document.getElementById("brp-error");
-  if (errorBox) {
-    errorBox.style.display = "none";
-  }
-
-  // If popup already has content, reinit it
-  if (window.__BRP_RESET__) {
-    window.__BRP_RESET__();
-  }
-
-  // Trigger the init
-  if (typeof initBookingPopup === 'function') {
-    initBookingPopup();
-  }
-};
-
-// Make BRJ globally accessible
-window.BRJ = {
-  open: window.openBookingWidget
-};
-    
 (function(){
-
-// ========================================
-// WAIT FOR DOM TO BE FULLY READY
-// ========================================
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initWidget);
-} else {
-  initWidget();
-}
-
-function initWidget() {
-
-// ========================================
-// CORE VARIABLES
-// ========================================
 
 let __BRP_TEMPLATE_HTML__ = null;
 let ACTIVE_HOTEL_ID = null;
@@ -708,10 +645,6 @@ const COUNTRIES = [
 ];
 
 let rotateTimer = null;
-
-// ========================================
-// HELPER FUNCTIONS
-// ========================================
 
 function toLocalISO(date){
   const y = date.getFullYear();
@@ -860,10 +793,6 @@ function getTotalsFromRooms(rooms = []) {
   };
 }
 
-// ========================================
-// RENDER COMPARISON UI
-// ========================================
-
 function renderComparisonResults(results, name, phone){
   const ourRate = calculateOurRate(results);
   const hotelName = getWordPressSiteTitle();
@@ -939,13 +868,12 @@ function renderComparisonResults(results, name, phone){
   `;
 }
 
-// ========================================
-// LOADING + LEAD FORM STATE
-// ========================================
-
 function showLoadingLeadForm(payload){
   const root = document.getElementById('booking-popup');
-  if(!root) return;
+  if(!root) {
+    console.error('❌ Cannot show lead form: #booking-popup not found');
+    return;
+  }
 
   const LOCKED_BOOKING = {
     bookingType: payload.bookingType,
@@ -1028,219 +956,209 @@ function showLoadingLeadForm(payload){
     });
   }
 
-  form.addEventListener("submit", async (e)=>{
-    e.preventDefault();
+  if (form) {
+    form.addEventListener("submit", async (e)=>{
+      e.preventDefault();
 
-    const name = document.getElementById("brp-lead-name").value.trim();
-    root.dataset.leadName = name;
-    const rawPhone = document.getElementById("brp-lead-phone").value.trim();
-    const countryCode = document.getElementById("brp-country-code").value;
-    const phone = `${countryCode} ${rawPhone}`;
+      const name = document.getElementById("brp-lead-name").value.trim();
+      root.dataset.leadName = name;
+      const rawPhone = document.getElementById("brp-lead-phone").value.trim();
+      const countryCode = document.getElementById("brp-country-code").value;
+      const phone = `${countryCode} ${rawPhone}`;
 
-    if(!name){
-      alert("Please enter your name.");
-      return;
-    }
+      if(!name){
+        alert("Please enter your name.");
+        return;
+      }
 
-    const digits = phone.replace(/\D/g,'');
-    if(digits.length < 10){
-      alert("Please enter a valid phone number.");
-      return;
-    }
+      const digits = phone.replace(/\D/g,'');
+      if(digits.length < 10){
+        alert("Please enter a valid phone number.");
+        return;
+      }
 
-    submitBtn.disabled = true;
-    submitBtn.textContent = "Submitting...";
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Submitting...";
 
-    const lockedBooking = JSON.parse(root.dataset.pendingBooking || "{}");
-    const bookingType = lockedBooking.bookingType;
+      const lockedBooking = JSON.parse(root.dataset.pendingBooking || "{}");
+      const bookingType = lockedBooking.bookingType;
 
-    // ========================================
-    // HOTEL + FLIGHT PATH (NO PRICING)
-    // ========================================
+      if (bookingType === "Hotel + Flight") {
+        const roomsConfig = lockedBooking.rooms.map((r, i) => {
+          let line = `Room ${i + 1}: ${r.adults} Adult${r.adults > 1 ? "s" : ""}`;
+          if (r.children && r.children > 0) {
+            line += `, ${r.children} Child${r.children > 1 ? "ren" : ""}`;
+          }
+          return line;
+        }).join(" • ");
 
-    if (bookingType === "Hotel + Flight") {
+        setTimeout(() => {
+          const payload = {
+            name,
+            phone,
+            booking_type: "Hotel + Flight",
+            hotel_name: getWordPressSiteTitle(),
+            departure_city: lockedBooking.departure || "",
+            check_in: lockedBooking.checkIn,
+            check_out: lockedBooking.checkOut,
+            rooms_config: roomsConfig,
+            sent_at: new Date().toISOString()
+          };
+
+          const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
+
+          if (!window.__BRP_ZAPIER_SENT__) {
+            window.__BRP_ZAPIER_SENT__ = true;
+            navigator.sendBeacon("https://hooks.zapier.com/hooks/catch/3129081/uw4v30l/", blob);
+          }
+        }, 0);
+
+        root.dataset.leadName = name;
+
+        root.innerHTML = `
+          <div class="brp-lead-wrap">
+            <div class="brp-success">You're all set, ${name}.</div>
+            <div class="brp-success-sub">A ${getWordPressSiteTitle()} specialist will be reaching out shortly.</div>
+
+            <div style="margin-top:18px;display:grid;gap:12px;max-width:440px;width:100%;">
+              <div style="padding:14px 16px;border-radius:14px;background:#f7f3e7;border:1px solid rgba(0,0,0,.08);">
+                <div style="font-size:12px;color:#777;font-weight:700;letter-spacing:.06em;">TRAVEL DATES</div>
+                <div style="font-size:17px;font-weight:800;margin-top:4px;">${lockedBooking.checkIn} → ${lockedBooking.checkOut}</div>
+              </div>
+              ${lockedBooking.departure ? `
+              <div style="padding:14px 16px;border-radius:14px;background:#f7f3e7;border:1px solid rgba(0,0,0,.08);">
+                <div style="font-size:12px;color:#777;font-weight:700;letter-spacing:.06em;">DEPARTURE CITY</div>
+                <div style="font-size:17px;font-weight:800;margin-top:4px;">${lockedBooking.departure}</div>
+              </div>
+              ` : ``}
+              <div style="padding:14px 16px;border-radius:14px;background:#f7f3e7;border:1px solid rgba(0,0,0,.08);">
+                <div style="font-size:12px;color:#777;font-weight:700;letter-spacing:.06em;">ROOMS & GUESTS</div>
+                <div style="font-size:16px;font-weight:700;margin-top:6px;line-height:1.5;">${roomsConfig}</div>
+              </div>
+            </div>
+
+            <div id="phone-confirmation-area" style="margin-top:22px;text-align:center;">
+              <div id="confirm-phone-display" style="font-size:18px;margin-bottom:6px;">📞 <b>${phone}</b></div>
+              <div style="font-size:14px;color:#555;">Is this the best number to reach you?</div>
+              <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;">
+                <button id="phone-yes-btn" style="padding:8px 18px;border-radius:8px;border:none;background:#1f7a3f;color:#fff;font-weight:700;">Yes</button>
+                <button id="phone-edit-btn" style="padding:8px 18px;border-radius:8px;border:1px solid #ccc;background:#fff;font-weight:700;">Update Number</button>
+              </div>
+              <div id="phone-edit-wrap" style="display:none;margin-top:14px;">
+                <div style="display:flex;gap:8px;justify-content:center;">
+                  <select id="confirm-country-code" class="brp-input" style="width:110px;"></select>
+                  <input id="phone-edit-input" class="brp-input" type="tel" placeholder="(555) 555-5555" style="max-width:220px;">
+                </div>
+                <div style="margin-top:10px;">
+                  <button id="phone-save-btn" style="padding:8px 18px;border-radius:8px;border:none;background:#1a73e8;color:#fff;font-weight:800;">Save</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:20px;">
+              <div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#fff6d6;border:1px solid #f1d48a;border-radius:999px;font-size:13px;font-weight:600;color:#8a6d1d;">⏱ Average wait time: <b>Less than 1 min</b></div>
+            </div>
+          </div>
+        `;
+
+        setTimeout(() => {
+          setupPhoneConfirmation(phone, lockedBooking);
+        }, 0);
+
+        return;
+      }
+
+      if(!lockedBooking.checkIn || !lockedBooking.checkOut){
+        console.error("Booking data missing", lockedBooking);
+        return;
+      }
+
+      const { adults, rooms: roomsCt } = getTotalsFromRooms(lockedBooking.rooms);
+
+      if (!ACTIVE_HOTEL_ID) {
+        alert("This hotel is not yet configured for booking.");
+        return;
+      }
+
+      const workerUrl = "https://makcorp-price-comparison.edwin-b8e.workers.dev/?" + new URLSearchParams({
+        hotelid: ACTIVE_HOTEL_ID,
+        checkin: lockedBooking.checkIn,
+        checkout: lockedBooking.checkOut,
+        adults,
+        rooms: roomsCt,
+        cur: "USD"
+      });
+
+      clearInterval(rotateTimer);
+
+      root.innerHTML = `
+        <div class="brp-lead-wrap">
+          <div class="brp-spinner"></div>
+          <div class="brp-rotator">Comparing the best available rates…</div>
+        </div>
+      `;
+
+      const results = await fetchWithRetry(workerUrl, 3, 600);
+
+      if (!results || !results.length) {
+        if (window.__BRP_RESET__) {
+          window.__BRP_RESET__();
+        }
+
+        setTimeout(() => {
+          const errorBox = document.getElementById("brp-error");
+          if (errorBox) {
+            errorBox.style.display = "block";
+            errorBox.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
+        }, 50);
+
+        return;
+      }
+
+      root.innerHTML = `
+        <div class="brp-lead-wrap">
+          <div class="brp-success">Well done, ${name} — you're officially getting the best deal.</div>
+          ${renderComparisonResults(results, name, phone)}
+        </div>
+      `;
+
       const roomsConfig = lockedBooking.rooms.map((r, i) => {
-        let line = `Room ${i + 1}: ${r.adults} Adult${r.adults > 1 ? "s" : ""}`;
+        let line = `Room ${i + 1}: ${r.adults} Adult${r.adults === 1 ? "" : "s"}`;
         if (r.children && r.children > 0) {
-          line += `, ${r.children} Child${r.children > 1 ? "ren" : ""}`;
+          line += `, ${r.children} Child${r.children === 1 ? "" : "ren"}`;
         }
         return line;
       }).join(" • ");
+
+      const expedia = results.find(r => r.vendor === "Expedia.com") || {};
+      const hotels  = results.find(r => r.vendor === "Hotels.com") || {};
+      const ourRate = calculateOurRate(results) || {};
 
       setTimeout(() => {
         const payload = {
           name,
           phone,
-          booking_type: "Hotel + Flight",
           hotel_name: getWordPressSiteTitle(),
-          departure_city: lockedBooking.departure || "",
           check_in: lockedBooking.checkIn,
           check_out: lockedBooking.checkOut,
           rooms_config: roomsConfig,
+          bookresorts_total: ourRate.total || "",
+          expedia_total: expedia.total || "",
+          hotels_total: hotels.total || "",
           sent_at: new Date().toISOString()
         };
 
         const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
-
-        if (!window.__BRP_ZAPIER_SENT__) {
-          window.__BRP_ZAPIER_SENT__ = true;
-          navigator.sendBeacon("https://hooks.zapier.com/hooks/catch/3129081/uw4v30l/", blob);
-        }
+        navigator.sendBeacon("https://hooks.zapier.com/hooks/catch/3129081/uw4v30l/", blob);
       }, 0);
-
-      root.dataset.leadName = name;
-
-      root.innerHTML = `
-        <div class="brp-lead-wrap">
-          <div class="brp-success">You're all set, ${name}.</div>
-          <div class="brp-success-sub">A ${getWordPressSiteTitle()} specialist will be reaching out shortly.</div>
-
-          <div style="margin-top:18px;display:grid;gap:12px;max-width:440px;width:100%;">
-            <div style="padding:14px 16px;border-radius:14px;background:#f7f3e7;border:1px solid rgba(0,0,0,.08);">
-              <div style="font-size:12px;color:#777;font-weight:700;letter-spacing:.06em;">TRAVEL DATES</div>
-              <div style="font-size:17px;font-weight:800;margin-top:4px;">${lockedBooking.checkIn} → ${lockedBooking.checkOut}</div>
-            </div>
-            ${lockedBooking.departure ? `
-            <div style="padding:14px 16px;border-radius:14px;background:#f7f3e7;border:1px solid rgba(0,0,0,.08);">
-              <div style="font-size:12px;color:#777;font-weight:700;letter-spacing:.06em;">DEPARTURE CITY</div>
-              <div style="font-size:17px;font-weight:800;margin-top:4px;">${lockedBooking.departure}</div>
-            </div>
-            ` : ``}
-            <div style="padding:14px 16px;border-radius:14px;background:#f7f3e7;border:1px solid rgba(0,0,0,.08);">
-              <div style="font-size:12px;color:#777;font-weight:700;letter-spacing:.06em;">ROOMS & GUESTS</div>
-              <div style="font-size:16px;font-weight:700;margin-top:6px;line-height:1.5;">${roomsConfig}</div>
-            </div>
-          </div>
-
-          <div id="phone-confirmation-area" style="margin-top:22px;text-align:center;">
-            <div id="confirm-phone-display" style="font-size:18px;margin-bottom:6px;">📞 <b>${phone}</b></div>
-            <div style="font-size:14px;color:#555;">Is this the best number to reach you?</div>
-            <div style="margin-top:12px;display:flex;gap:10px;justify-content:center;">
-              <button id="phone-yes-btn" style="padding:8px 18px;border-radius:8px;border:none;background:#1f7a3f;color:#fff;font-weight:700;">Yes</button>
-              <button id="phone-edit-btn" style="padding:8px 18px;border-radius:8px;border:1px solid #ccc;background:#fff;font-weight:700;">Update Number</button>
-            </div>
-            <div id="phone-edit-wrap" style="display:none;margin-top:14px;">
-              <div style="display:flex;gap:8px;justify-content:center;">
-                <select id="confirm-country-code" class="brp-input" style="width:110px;"></select>
-                <input id="phone-edit-input" class="brp-input" type="tel" placeholder="(555) 555-5555" style="max-width:220px;">
-              </div>
-              <div style="margin-top:10px;">
-                <button id="phone-save-btn" style="padding:8px 18px;border-radius:8px;border:none;background:#1a73e8;color:#fff;font-weight:800;">Save</button>
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-top:20px;">
-            <div style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#fff6d6;border:1px solid #f1d48a;border-radius:999px;font-size:13px;font-weight:600;color:#8a6d1d;">⏱ Average wait time: <b>Less than 1 min</b></div>
-          </div>
-        </div>
-      `;
 
       setTimeout(() => {
         setupPhoneConfirmation(phone, lockedBooking);
       }, 0);
-
-      return;
-    }
-
-    // ========================================
-    // HOTEL ONLY PATH (WITH PRICING)
-    // ========================================
-
-    if(!lockedBooking.checkIn || !lockedBooking.checkOut){
-      console.error("Booking data missing", lockedBooking);
-      return;
-    }
-
-    const { adults, rooms: roomsCt } = getTotalsFromRooms(lockedBooking.rooms);
-
-    if (!ACTIVE_HOTEL_ID) {
-      alert("This hotel is not yet configured for booking.");
-      return;
-    }
-
-    const workerUrl = "https://makcorp-price-comparison.edwin-b8e.workers.dev/?" + new URLSearchParams({
-      hotelid: ACTIVE_HOTEL_ID,
-      checkin: lockedBooking.checkIn,
-      checkout: lockedBooking.checkOut,
-      adults,
-      rooms: roomsCt,
-      cur: "USD"
     });
-
-    clearInterval(rotateTimer);
-
-    root.innerHTML = `
-      <div class="brp-lead-wrap">
-        <div class="brp-spinner"></div>
-        <div class="brp-rotator">Comparing the best available rates…</div>
-      </div>
-    `;
-
-    const results = await fetchWithRetry(workerUrl, 3, 600);
-
-    if (!results || !results.length) {
-      if (window.__BRP_RESET__) {
-        window.__BRP_RESET__();
-      }
-
-      setTimeout(() => {
-        const errorBox = document.getElementById("brp-error");
-        if (errorBox) {
-          errorBox.style.display = "block";
-          errorBox.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }, 50);
-
-      return;
-    }
-
-    root.innerHTML = `
-      <div class="brp-lead-wrap">
-        <div class="brp-success">Well done, ${name} — you're officially getting the best deal.</div>
-        ${renderComparisonResults(results, name, phone)}
-      </div>
-    `;
-
-    const roomsConfig = lockedBooking.rooms.map((r, i) => {
-      let line = `Room ${i + 1}: ${r.adults} Adult${r.adults === 1 ? "" : "s"}`;
-      if (r.children && r.children > 0) {
-        line += `, ${r.children} Child${r.children === 1 ? "" : "ren"}`;
-      }
-      return line;
-    }).join(" • ");
-
-    const expedia = results.find(r => r.vendor === "Expedia.com") || {};
-    const hotels  = results.find(r => r.vendor === "Hotels.com") || {};
-    const ourRate = calculateOurRate(results) || {};
-
-    setTimeout(() => {
-      const payload = {
-        name,
-        phone,
-        hotel_name: getWordPressSiteTitle(),
-        check_in: lockedBooking.checkIn,
-        check_out: lockedBooking.checkOut,
-        rooms_config: roomsConfig,
-        bookresorts_total: ourRate.total || "",
-        expedia_total: expedia.total || "",
-        hotels_total: hotels.total || "",
-        sent_at: new Date().toISOString()
-      };
-
-      const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
-      navigator.sendBeacon("https://hooks.zapier.com/hooks/catch/3129081/uw4v30l/", blob);
-    }, 0);
-
-    setTimeout(() => {
-      setupPhoneConfirmation(phone, lockedBooking);
-    }, 0);
-  });
+  }
 }
-
-// ========================================
-// PHONE CONFIRMATION HELPER
-// ========================================
 
 function setupPhoneConfirmation(phone, lockedBooking) {
   const root = document.getElementById('booking-popup');
@@ -1346,408 +1264,413 @@ function setupPhoneConfirmation(phone, lockedBooking) {
   }
 }
 
-// ========================================
-// MAIN INIT FUNCTION
-// ========================================
+function waitForElement(selector, callback, maxWait = 5000) {
+  const startTime = Date.now();
+  const check = () => {
+    const el = document.querySelector(selector);
+    if (el) {
+      callback(el);
+    } else if (Date.now() - startTime < maxWait) {
+      setTimeout(check, 100);
+    } else {
+      console.error(`❌ Element ${selector} not found after ${maxWait}ms`);
+    }
+  };
+  check();
+}
 
 function initBookingPopup() {
-  const root = document.getElementById('booking-popup');
-  if (!root) {
-    console.warn("⚠️ #booking-popup not found — delaying init");
-    return;
-  }
+  console.log('🔄 initBookingPopup called');
 
-  if (!__BRP_TEMPLATE_HTML__) {
-    __BRP_TEMPLATE_HTML__ = root.innerHTML;
-  }
+  waitForElement('#booking-popup', (root) => {
+    console.log('✅ #booking-popup found');
 
-  const q  = sel => root.querySelector(sel);
-  const qa = sel => [...root.querySelectorAll(sel)];
-
-  const pills  = qa('.brp-pill');
-  const radios = qa('input[name="booking_type"]');
-  const depContainer = q('#departure_city_container');
-  const depInput     = q('#departure_city_field');
-
-  if (!depContainer || !depInput) {
-    console.error("❌ Critical elements missing in popup");
-    return;
-  }
-
-  function getType(){
-    return q('input[name="booking_type"]:checked')?.value || "Hotel Only";
-  }
-
-  function toggleDep(){
-    const t = getType();
-    if(t === "Hotel + Flight"){
-      depContainer.style.display = "block";
-      depInput.required = true;
-    }else{
-      depContainer.style.display = "none";
-      depInput.required = false;
-      depInput.value = "";
-      depInput.dataset.iata = "";
+    if (!__BRP_TEMPLATE_HTML__) {
+      __BRP_TEMPLATE_HTML__ = root.innerHTML;
     }
-  }
 
-  const shell   = q('#rg-inline');
-  const summary = q('#rg-summary');
-  const addBtn  = q('#rg-add');
-  const collapse= q('#rg-collapse');
-  const roomsWrap = q('#rg-rooms');
-  const roomsCountEl  = q('#rg-rooms-count');
-  const guestsCountEl = q('#rg-guests-count');
+    const q  = sel => root.querySelector(sel);
+    const qa = sel => [...root.querySelectorAll(sel)];
 
-  if (!shell || !summary || !addBtn || !collapse || !roomsWrap || !roomsCountEl || !guestsCountEl) {
-    console.error("❌ Rooms/Guests UI elements missing");
-    return;
-  }
+    const pills  = qa('.brp-pill');
+    const radios = qa('input[name="booking_type"]');
+    const depContainer = q('#departure_city_container');
+    const depInput     = q('#departure_city_field');
 
-  let rooms=[{adults:2,children:0}];
-
-  const totalGuests = ()=> rooms.reduce((s,r)=>s + (r.adults||0) + (r.children||0), 0);
-  const refreshSummary = ()=>{ roomsCountEl.textContent = rooms.length; guestsCountEl.textContent = totalGuests(); };
-
-  function updateAddRoomState(){
-    if (rooms.length >= ACTIVE_MAX_ROOMS) {
-      addBtn.disabled = true;
-      addBtn.style.opacity = "0.5";
-      addBtn.style.cursor = "not-allowed";
-    } else {
-      addBtn.disabled = false;
-      addBtn.style.opacity = "1";
-      addBtn.style.cursor = "pointer";
+    if (!depContainer || !depInput) {
+      console.error("❌ Critical elements missing in popup");
+      return;
     }
-  }
 
-  function renderRooms(){
-    roomsWrap.innerHTML = '';
+    function getType(){
+      return q('input[name="booking_type"]:checked')?.value || "Hotel Only";
+    }
 
-    rooms.forEach((r, idx) => {
-      const room = document.createElement('div');
-      room.className = 'rg-room';
+    function toggleDep(){
+      const t = getType();
+      if(t === "Hotel + Flight"){
+        depContainer.style.display = "block";
+        depInput.required = true;
+      }else{
+        depContainer.style.display = "none";
+        depInput.required = false;
+        depInput.value = "";
+        depInput.dataset.iata = "";
+      }
+    }
 
-      let adultsHtml = `
-        <div class="rg-ctrl">
-          <div class="rg-ctrl-label">Adults (18+)</div>
-          <div class="rg-steps">
-            <button class="rg-step" type="button" data-op="minus" data-room="${idx}" data-field="adults">−</button>
-            <span class="rg-count" id="count-adults-${idx}">${r.adults}</span>
-            <button class="rg-step" type="button" data-op="plus" data-room="${idx}" data-field="adults">＋</button>
-          </div>
-        </div>
-      `;
+    const shell   = q('#rg-inline');
+    const summary = q('#rg-summary');
+    const addBtn  = q('#rg-add');
+    const collapse= q('#rg-collapse');
+    const roomsWrap = q('#rg-rooms');
+    const roomsCountEl  = q('#rg-rooms-count');
+    const guestsCountEl = q('#rg-guests-count');
 
-      let childrenHtml = '';
-      if (ACTIVE_MAX_CHILDREN > 0) {
-        childrenHtml = `
+    if (!shell || !summary || !addBtn || !collapse || !roomsWrap || !roomsCountEl || !guestsCountEl) {
+      console.error("❌ Rooms/Guests UI elements missing");
+      return;
+    }
+
+    let rooms=[{adults:2,children:0}];
+
+    const totalGuests = ()=> rooms.reduce((s,r)=>s + (r.adults||0) + (r.children||0), 0);
+    const refreshSummary = ()=>{ roomsCountEl.textContent = rooms.length; guestsCountEl.textContent = totalGuests(); };
+
+    function updateAddRoomState(){
+      if (rooms.length >= ACTIVE_MAX_ROOMS) {
+        addBtn.disabled = true;
+        addBtn.style.opacity = "0.5";
+        addBtn.style.cursor = "not-allowed";
+      } else {
+        addBtn.disabled = false;
+        addBtn.style.opacity = "1";
+        addBtn.style.cursor = "pointer";
+      }
+    }
+
+    function renderRooms(){
+      roomsWrap.innerHTML = '';
+
+      rooms.forEach((r, idx) => {
+        const room = document.createElement('div');
+        room.className = 'rg-room';
+
+        let adultsHtml = `
           <div class="rg-ctrl">
-            <div class="rg-ctrl-label">Children</div>
+            <div class="rg-ctrl-label">Adults (18+)</div>
             <div class="rg-steps">
-              <button class="rg-step" type="button" data-op="minus" data-room="${idx}" data-field="children">−</button>
-              <span class="rg-count" id="count-children-${idx}">${r.children}</span>
-              <button class="rg-step" type="button" data-op="plus" data-room="${idx}" data-field="children">＋</button>
+              <button class="rg-step" type="button" data-op="minus" data-room="${idx}" data-field="adults">−</button>
+              <span class="rg-count" id="count-adults-${idx}">${r.adults}</span>
+              <button class="rg-step" type="button" data-op="plus" data-room="${idx}" data-field="adults">＋</button>
             </div>
           </div>
         `;
-      }
 
-      room.innerHTML = `
-        <div class="rg-title">Room ${idx + 1}</div>
-        ${adultsHtml}
-        ${childrenHtml}
-        ${idx > 0 ? `<button class="rg-link" data-remove="${idx}" type="button">Remove Room</button>` : ''}
-      `;
+        let childrenHtml = '';
+        if (ACTIVE_MAX_CHILDREN > 0) {
+          childrenHtml = `
+            <div class="rg-ctrl">
+              <div class="rg-ctrl-label">Children</div>
+              <div class="rg-steps">
+                <button class="rg-step" type="button" data-op="minus" data-room="${idx}" data-field="children">−</button>
+                <span class="rg-count" id="count-children-${idx}">${r.children}</span>
+                <button class="rg-step" type="button" data-op="plus" data-room="${idx}" data-field="children">＋</button>
+              </div>
+            </div>
+          `;
+        }
 
-      roomsWrap.appendChild(room);
-    });
-  }
+        room.innerHTML = `
+          <div class="rg-title">Room ${idx + 1}</div>
+          ${adultsHtml}
+          ${childrenHtml}
+          ${idx > 0 ? `<button class="rg-link" data-remove="${idx}" type="button">Remove Room</button>` : ''}
+        `;
 
-  function enforceRoomsRules(){
-    if (!rooms.length) {
-      rooms = [{ adults: Math.min(2, ACTIVE_MAX_ADULTS), children: 0 }];
+        roomsWrap.appendChild(room);
+      });
     }
 
-    if (addBtn) addBtn.style.display = "inline-block";
-    renderRooms();
-    refreshSummary();
-    updateAddRoomState();
-  }
+    function enforceRoomsRules(){
+      if (!rooms.length) {
+        rooms = [{ adults: Math.min(2, ACTIVE_MAX_ADULTS), children: 0 }];
+      }
 
-  summary.addEventListener('click',()=>{
-    shell.classList.toggle('is-open');
-    updateAddRoomState();
-  });
-  collapse.addEventListener('click',()=> shell.classList.toggle('is-open'));
-
-  addBtn.addEventListener('click',()=>{
-    if (rooms.length >= ACTIVE_MAX_ROOMS) return;
-
-    rooms.push({
-      adults: Math.min(2, ACTIVE_MAX_ADULTS),
-      children: 0
-    });
-
-    renderRooms();
-    refreshSummary();
-    updateAddRoomState();
-  });
-
-  roomsWrap.addEventListener('click',e=>{
-    const t=e.target;
-    if(t.matches('[data-remove]')){
-      rooms.splice(+t.getAttribute('data-remove'),1);
+      if (addBtn) addBtn.style.display = "inline-block";
       renderRooms();
       refreshSummary();
       updateAddRoomState();
-      return;
     }
 
-    if (t.matches('.rg-step')) {
-      const idx = +t.dataset.room;
-      const field = t.dataset.field;
-      const op = t.dataset.op;
-
-      const max = field === "adults" ? ACTIVE_MAX_ADULTS : ACTIVE_MAX_CHILDREN;
-      const min = field === "adults" ? 1 : 0;
-
-      let val = rooms[idx][field];
-
-      if (op === "plus" && val < max) val++;
-      if (op === "minus" && val > min) val--;
-
-      rooms[idx][field] = val;
-
-      const counter = q(`#count-${field}-${idx}`);
-      if (counter) counter.textContent = val;
-
-      refreshSummary();
-    }
-  });
-
-  renderRooms();
-  refreshSummary();
-
-  radios.forEach((r,i)=>r.addEventListener('change',()=>{
-    pills.forEach(l=>l.classList.remove('is-active'));
-    if(r.checked) pills[i].classList.add('is-active');
-    toggleDep();
-    enforceRoomsRules();
-  }));
-  toggleDep();
-  enforceRoomsRules();
-
-  const checkin = q('#checkin_field');
-  const checkout = q('#checkout_field');
-  const ciWrap = q('#ci-wrap');
-  const coWrap = q('#co-wrap');
-
-  if (!checkin || !checkout) {
-    console.error("❌ Date fields missing");
-    return;
-  }
-
-  const today = new Date();
-  const todayISO = toLocalISO(today);
-
-  checkin.min = todayISO;
-  checkin.value = todayISO;
-
-  const plus1 = new Date(today); plus1.setDate(plus1.getDate() + 1);
-  const plus3 = new Date(today); plus3.setDate(plus3.getDate() + 3);
-  checkout.min = toLocalISO(plus1);
-  checkout.value = toLocalISO(plus3);
-
-  function openPicker(el){
-    try{ if(el.showPicker) el.showPicker(); }catch(_){}
-    el.focus({preventScroll:true});
-  }
-
-  if (ciWrap) ciWrap.addEventListener('click',()=>openPicker(checkin));
-  if (coWrap) coWrap.addEventListener('click',()=>openPicker(checkout));
-  checkin.addEventListener('click',()=>openPicker(checkin));
-  checkout.addEventListener('click',()=>openPicker(checkout));
-
-  checkin.addEventListener("change",()=>{
-    const base = parseLocalDate(checkin.value) || parseLocalDate(todayISO);
-    const minCo = new Date(base); minCo.setDate(minCo.getDate() + 1);
-    const auto  = new Date(base); auto.setDate(auto.getDate() + 3);
-
-    checkout.min = toLocalISO(minCo);
-
-    const coCurrent = parseLocalDate(checkout.value);
-    if(!checkout.value || !coCurrent || coCurrent <= base){
-      checkout.value = toLocalISO(auto);
-    }
-  });
-
-  const AIRPORTS_URL='https://raw.githubusercontent.com/mwgg/Airports/master/airports.json';
-  depContainer.classList.add('dep-suggest-wrap');
-  const dropdown = document.createElement('div');
-  dropdown.className='dep-suggest';
-  depContainer.appendChild(dropdown);
-  depInput.setAttribute('autocomplete','off');
-
-  let airportsIndex=[];
-  fetch(AIRPORTS_URL,{cache:'force-cache'})
-    .then(r=>r.json())
-    .then(data=>{
-      airportsIndex=Object.values(data)
-        .filter(a=>a && a.iata && a.iata.length===3 && a.name)
-        .map(a=>({ iata:(a.iata||'').toUpperCase(), name:a.name, city:a.city||a.town||'', country:a.country||'' }));
-    }).catch(()=>{});
-
-  const hide=()=>{ dropdown.style.display='none'; dropdown.innerHTML=''; };
-  const show=()=>{ dropdown.style.display='block'; };
-  const dedupe=list=>{ const s=new Set(), out=[]; for(const a of list){ if(s.has(a.iata)) continue; s.add(a.iata); out.push(a);} return out; };
-
-  function searchAirports(qv){
-    if(!qv || qv.trim().length===0){ hide(); return; }
-    const Q=qv.trim().toUpperCase();
-    let results=airportsIndex.filter(a=>a.iata.startsWith(Q));
-    if(results.length<8){
-      const more=airportsIndex.filter(a =>
-        (a.name && a.name.toUpperCase().includes(Q)) ||
-        (a.city && a.city.toUpperCase().includes(Q))
-      );
-      results=dedupe(results.concat(more));
-    }
-    renderAirports(results.slice(0,8));
-  }
-
-  function renderAirports(items){
-    dropdown.innerHTML='';
-    if(!items || !items.length){ hide(); return; }
-    items.forEach(a=>{
-      const row=document.createElement('div'); row.className='dep-s-item';
-      const name=document.createElement('div'); name.className='dep-s-name'; name.textContent=`${a.iata} — ${a.name}`;
-      const meta=document.createElement('div'); meta.className='dep-s-meta'; meta.textContent=[a.city,a.country].filter(Boolean).join(', ');
-      row.appendChild(name); if(meta.textContent) row.appendChild(meta);
-      row.addEventListener('click',()=>{
-        depInput.value=`${a.iata} — ${a.name}`;
-        depInput.dataset.iata=a.iata;
-        hide();
-      });
-      dropdown.appendChild(row);
+    summary.addEventListener('click',()=>{
+      shell.classList.toggle('is-open');
+      updateAddRoomState();
     });
-    show();
-  }
+    collapse.addEventListener('click',()=> shell.classList.toggle('is-open'));
 
-  let tt=null;
-  depInput.addEventListener('input', ()=>{
-    clearTimeout(tt);
-    const v=depInput.value;
-    tt=setTimeout(()=>searchAirports(v),90);
-  });
-  depInput.addEventListener('focus', ()=>{ if(dropdown.innerHTML.trim()) show(); });
-  document.addEventListener('click', (e)=>{
-    const inside = root.contains(e.target) && depContainer.contains(e.target);
-    if(!inside) hide();
-  });
+    addBtn.addEventListener('click',()=>{
+      if (rooms.length >= ACTIVE_MAX_ROOMS) return;
 
-  const btn = q("#brp-check-btn");
-  if (!btn) {
-    console.error("❌ Check availability button missing");
-    return;
-  }
+      rooms.push({
+        adults: Math.min(2, ACTIVE_MAX_ADULTS),
+        children: 0
+      });
 
-  btn.addEventListener("click", (e)=>{
-    e.preventDefault();
+      renderRooms();
+      refreshSummary();
+      updateAddRoomState();
+    });
 
-    sessionStorage.removeItem("brp_no_rates_error");
-    const errorBox = document.getElementById("brp-error");
-    if (errorBox) {
-      errorBox.style.display = "none";
-    }
+    roomsWrap.addEventListener('click',e=>{
+      const t=e.target;
+      if(t.matches('[data-remove]')){
+        rooms.splice(+t.getAttribute('data-remove'),1);
+        renderRooms();
+        refreshSummary();
+        updateAddRoomState();
+        return;
+      }
 
-    const type = getType();
-    const ci = checkin.value;
-    const co = checkout.value;
+      if (t.matches('.rg-step')) {
+        const idx = +t.dataset.room;
+        const field = t.dataset.field;
+        const op = t.dataset.op;
 
-    const required = [checkin, checkout];
-    if(type === "Hotel + Flight") required.push(depInput);
+        const max = field === "adults" ? ACTIVE_MAX_ADULTS : ACTIVE_MAX_CHILDREN;
+        const min = field === "adults" ? 1 : 0;
 
-    let ok = true;
-    required.forEach(f=>{
-      if(!f.value){
-        f.style.borderColor="red";
-        ok=false;
-      }else{
-        f.style.borderColor="rgba(0,0,0,.15)";
+        let val = rooms[idx][field];
+
+        if (op === "plus" && val < max) val++;
+        if (op === "minus" && val > min) val--;
+
+        rooms[idx][field] = val;
+
+        const counter = q(`#count-${field}-${idx}`);
+        if (counter) counter.textContent = val;
+
+        refreshSummary();
       }
     });
-    if(!ok) return;
 
-    const ciDate = parseLocalDate(ci);
-    const coDate = parseLocalDate(co);
-    const todayDate = parseLocalDate(todayISO);
-
-    if(ciDate < todayDate){
-      checkin.style.borderColor = "red";
-      alert("Check-in date cannot be in the past.");
-      return;
-    }
-    if(coDate <= ciDate){
-      checkout.style.borderColor = "red";
-      alert("Check-out date must be after check-in date.");
-      return;
-    }
-
-    showLoadingLeadForm({
-      bookingType: type,
-      checkIn: ci,
-      checkOut: co,
-      departure: (type==="Hotel + Flight") ? (depInput.value || "") : "",
-      rooms: rooms
-    });
-  });
-
-  // ========================================
-  // CHECK FOR BOOKING BAR PREFILL DATA
-  // ========================================
-
-  if (window.__BRP_PREFILL__ && window.__BRP_PREFILL__.source === "booking-bar") {
-    const prefill = window.__BRP_PREFILL__;
-
-    if (prefill.bookingType === "Hotel + Flight") {
-      radios.forEach((r, i) => {
-        if (r.value === "Hotel + Flight") {
-          r.checked = true;
-          pills[i].classList.add('is-active');
-        } else {
-          pills[i].classList.remove('is-active');
-        }
-      });
-    }
-
-    if (prefill.checkIn) checkin.value = prefill.checkIn;
-    if (prefill.checkOut) checkout.value = prefill.checkOut;
-    if (prefill.departure) depInput.value = prefill.departure;
-
-    if (Array.isArray(prefill.rooms) && prefill.rooms.length) {
-      rooms = prefill.rooms.map(r => ({
-        adults: r.adults || 2,
-        children: r.children || 0
-      }));
-    }
-
-    toggleDep();
     renderRooms();
     refreshSummary();
-    updateAddRoomState();
 
-    window.__BRP_PREFILL__ = null;
+    radios.forEach((r,i)=>r.addEventListener('change',()=>{
+      pills.forEach(l=>l.classList.remove('is-active'));
+      if(r.checked) pills[i].classList.add('is-active');
+      toggleDep();
+      enforceRoomsRules();
+    }));
+    toggleDep();
+    enforceRoomsRules();
 
-    setTimeout(() => {
-      btn.click();
-    }, 100);
-  }
+    const checkin = q('#checkin_field');
+    const checkout = q('#checkout_field');
+    const ciWrap = q('#ci-wrap');
+    const coWrap = q('#co-wrap');
+
+    if (!checkin || !checkout) {
+      console.error("❌ Date fields missing");
+      return;
+    }
+
+    const today = new Date();
+    const todayISO = toLocalISO(today);
+
+    checkin.min = todayISO;
+    checkin.value = todayISO;
+
+    const plus1 = new Date(today); plus1.setDate(plus1.getDate() + 1);
+    const plus3 = new Date(today); plus3.setDate(plus3.getDate() + 3);
+    checkout.min = toLocalISO(plus1);
+    checkout.value = toLocalISO(plus3);
+
+    function openPicker(el){
+      try{ if(el.showPicker) el.showPicker(); }catch(_){}
+      el.focus({preventScroll:true});
+    }
+
+    if (ciWrap) ciWrap.addEventListener('click',()=>openPicker(checkin));
+    if (coWrap) coWrap.addEventListener('click',()=>openPicker(checkout));
+    checkin.addEventListener('click',()=>openPicker(checkin));
+    checkout.addEventListener('click',()=>openPicker(checkout));
+
+    checkin.addEventListener("change",()=>{
+      const base = parseLocalDate(checkin.value) || parseLocalDate(todayISO);
+      const minCo = new Date(base); minCo.setDate(minCo.getDate() + 1);
+      const auto  = new Date(base); auto.setDate(auto.getDate() + 3);
+
+      checkout.min = toLocalISO(minCo);
+
+      const coCurrent = parseLocalDate(checkout.value);
+      if(!checkout.value || !coCurrent || coCurrent <= base){
+        checkout.value = toLocalISO(auto);
+      }
+    });
+
+    const AIRPORTS_URL='https://raw.githubusercontent.com/mwgg/Airports/master/airports.json';
+    depContainer.classList.add('dep-suggest-wrap');
+    const dropdown = document.createElement('div');
+    dropdown.className='dep-suggest';
+    depContainer.appendChild(dropdown);
+    depInput.setAttribute('autocomplete','off');
+
+    let airportsIndex=[];
+    fetch(AIRPORTS_URL,{cache:'force-cache'})
+      .then(r=>r.json())
+      .then(data=>{
+        airportsIndex=Object.values(data)
+          .filter(a=>a && a.iata && a.iata.length===3 && a.name)
+          .map(a=>({ iata:(a.iata||'').toUpperCase(), name:a.name, city:a.city||a.town||'', country:a.country||'' }));
+      }).catch(()=>{});
+
+    const hide=()=>{ dropdown.style.display='none'; dropdown.innerHTML=''; };
+    const show=()=>{ dropdown.style.display='block'; };
+    const dedupe=list=>{ const s=new Set(), out=[]; for(const a of list){ if(s.has(a.iata)) continue; s.add(a.iata); out.push(a);} return out; };
+
+    function searchAirports(qv){
+      if(!qv || qv.trim().length===0){ hide(); return; }
+      const Q=qv.trim().toUpperCase();
+      let results=airportsIndex.filter(a=>a.iata.startsWith(Q));
+      if(results.length<8){
+        const more=airportsIndex.filter(a =>
+          (a.name && a.name.toUpperCase().includes(Q)) ||
+          (a.city && a.city.toUpperCase().includes(Q))
+        );
+        results=dedupe(results.concat(more));
+      }
+      renderAirports(results.slice(0,8));
+    }
+
+    function renderAirports(items){
+      dropdown.innerHTML='';
+      if(!items || !items.length){ hide(); return; }
+      items.forEach(a=>{
+        const row=document.createElement('div'); row.className='dep-s-item';
+        const name=document.createElement('div'); name.className='dep-s-name'; name.textContent=`${a.iata} — ${a.name}`;
+        const meta=document.createElement('div'); meta.className='dep-s-meta'; meta.textContent=[a.city,a.country].filter(Boolean).join(', ');
+        row.appendChild(name); if(meta.textContent) row.appendChild(meta);
+        row.addEventListener('click',()=>{
+          depInput.value=`${a.iata} — ${a.name}`;
+          depInput.dataset.iata=a.iata;
+          hide();
+        });
+        dropdown.appendChild(row);
+      });
+      show();
+    }
+
+    let tt=null;
+    depInput.addEventListener('input', ()=>{
+      clearTimeout(tt);
+      const v=depInput.value;
+      tt=setTimeout(()=>searchAirports(v),90);
+    });
+    depInput.addEventListener('focus', ()=>{ if(dropdown.innerHTML.trim()) show(); });
+    document.addEventListener('click', (e)=>{
+      const inside = root.contains(e.target) && depContainer.contains(e.target);
+      if(!inside) hide();
+    });
+
+    const btn = q("#brp-check-btn");
+    if (!btn) {
+      console.error("❌ Check availability button missing");
+      return;
+    }
+
+    btn.addEventListener("click", (e)=>{
+      e.preventDefault();
+
+      sessionStorage.removeItem("brp_no_rates_error");
+      const errorBox = document.getElementById("brp-error");
+      if (errorBox) {
+        errorBox.style.display = "none";
+      }
+
+      const type = getType();
+      const ci = checkin.value;
+      const co = checkout.value;
+
+      const required = [checkin, checkout];
+      if(type === "Hotel + Flight") required.push(depInput);
+
+      let ok = true;
+      required.forEach(f=>{
+        if(!f.value){
+          f.style.borderColor="red";
+          ok=false;
+        }else{
+          f.style.borderColor="rgba(0,0,0,.15)";
+        }
+      });
+      if(!ok) return;
+
+      const ciDate = parseLocalDate(ci);
+      const coDate = parseLocalDate(co);
+      const todayDate = parseLocalDate(todayISO);
+
+      if(ciDate < todayDate){
+        checkin.style.borderColor = "red";
+        alert("Check-in date cannot be in the past.");
+        return;
+      }
+      if(coDate <= ciDate){
+        checkout.style.borderColor = "red";
+        alert("Check-out date must be after check-in date.");
+        return;
+      }
+
+      showLoadingLeadForm({
+        bookingType: type,
+        checkIn: ci,
+        checkOut: co,
+        departure: (type==="Hotel + Flight") ? (depInput.value || "") : "",
+        rooms: rooms
+      });
+    });
+
+    if (window.__BRP_PREFILL__ && window.__BRP_PREFILL__.source === "booking-bar") {
+      const prefill = window.__BRP_PREFILL__;
+
+      if (prefill.bookingType === "Hotel + Flight") {
+        radios.forEach((r, i) => {
+          if (r.value === "Hotel + Flight") {
+            r.checked = true;
+            pills[i].classList.add('is-active');
+          } else {
+            pills[i].classList.remove('is-active');
+          }
+        });
+      }
+
+      if (prefill.checkIn) checkin.value = prefill.checkIn;
+      if (prefill.checkOut) checkout.value = prefill.checkOut;
+      if (prefill.departure) depInput.value = prefill.departure;
+
+      if (Array.isArray(prefill.rooms) && prefill.rooms.length) {
+        rooms = prefill.rooms.map(r => ({
+          adults: r.adults || 2,
+          children: r.children || 0
+        }));
+      }
+
+      toggleDep();
+      renderRooms();
+      refreshSummary();
+      updateAddRoomState();
+
+      window.__BRP_PREFILL__ = null;
+
+      setTimeout(() => {
+        btn.click();
+      }, 100);
+    }
+
+    console.log('✅ initBookingPopup complete');
+  }, 10000);
 }
-
-// ========================================
-// HOTEL CONFIG INIT
-// ========================================
 
 (async function initHotelId() {
   const siteTitle = getWordPressSiteTitle();
@@ -1770,15 +1693,8 @@ function initBookingPopup() {
     ACTIVE_MAX_ROOMS
   });
 
-  // Re-init popup after limits are loaded
   initBookingPopup();
 })();
-
-// ========================================
-// RUN INIT & EXPOSE RESET
-// ========================================
-
-initBookingPopup();
 
 window.__BRP_RESET__ = function () {
   const root = document.getElementById("booking-popup");
@@ -1788,7 +1704,10 @@ window.__BRP_RESET__ = function () {
   initBookingPopup();
 };
 
-} // ⬅️ END initWidget wrapper
+window.openBookingWidget = function() {
+  console.log('✅ openBookingWidget called from booking bar');
+  initBookingPopup();
+};
 
 })();
 </script>
