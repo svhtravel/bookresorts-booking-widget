@@ -606,6 +606,18 @@
 (function(){
 
 // ========================================
+// WAIT FOR DOM TO BE FULLY READY
+// ========================================
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initWidget);
+} else {
+  initWidget();
+}
+
+function initWidget() {
+
+// ========================================
 // CORE VARIABLES
 // ========================================
 
@@ -1091,85 +1103,10 @@ function showLoadingLeadForm(payload){
       `;
 
       setTimeout(() => {
-        const yesBtn = document.getElementById("phone-yes-btn");
-        const editBtn = document.getElementById("phone-edit-btn");
-        const editWrap = document.getElementById("phone-edit-wrap");
-        const saveBtn = document.getElementById("phone-save-btn");
-        const input = document.getElementById("phone-edit-input");
-        const display = document.getElementById("confirm-phone-display");
-        const confirmArea = document.getElementById("phone-confirmation-area");
-        const countrySelect = document.getElementById("confirm-country-code");
-
-        if (!display || !input || !countrySelect) return;
-
-        const us = COUNTRIES.find(c => c.label.includes("United States"));
-        const others = COUNTRIES.filter(c => !c.label.includes("United States")).sort((a, b) => a.label.localeCompare(b.label));
-        const SORTED = us ? [us, ...others] : others;
-
-        countrySelect.innerHTML = SORTED.map(c => `<option value="${c.code}">${c.label} ${c.code}</option>`).join("");
-        countrySelect.value = "+1";
-
-        editBtn.onclick = () => {
-          editWrap.style.display = "block";
-          input.focus();
-        };
-
-        yesBtn.onclick = () => {
-          confirmArea.innerHTML = `<div style="font-size:15px;font-weight:700;color:#1f7a3f;">Thanks! Our team will connect with you shortly.</div>`;
-        };
-
-        input.addEventListener("input", () => {
-          if (countrySelect.value !== "+1") return;
-          const d = input.value.replace(/\D/g, "").slice(0, 10);
-          let f = "";
-          if (d.length > 0) f += "(" + d.slice(0, 3);
-          if (d.length >= 4) f += ") " + d.slice(3, 6);
-          if (d.length >= 7) f += "-" + d.slice(6);
-          input.value = f;
-        });
-
-        saveBtn.onclick = () => {
-          window.__BRP_ZAPIER_SENT__ = false;
-
-          const raw = input.value.replace(/\D/g, "");
-          if (countrySelect.value === "+1" && raw.length !== 10) {
-            alert("Please enter a valid 10-digit phone number.");
-            return;
-          }
-
-          const formatted = `(${raw.slice(0,3)}) ${raw.slice(3,6)}-${raw.slice(6)}`;
-          const fullPhone = `${countrySelect.value} ${formatted}`;
-
-          display.innerHTML = `📞 <b>${fullPhone}</b>`;
-          editWrap.style.display = "none";
-
-          setTimeout(() => {
-            const payload = {
-              event: "phone_updated",
-              name: root.dataset.leadName || "",
-              phone: fullPhone,
-              booking_type: lockedBooking.bookingType,
-              hotel_name: getWordPressSiteTitle(),
-              departure_city: lockedBooking.departure || "",
-              check_in: lockedBooking.checkIn,
-              check_out: lockedBooking.checkOut,
-              rooms_config: (lockedBooking.rooms || []).map((r, i) => {
-                let line = `Room ${i + 1}: ${r.adults} Adult${r.adults === 1 ? "" : "s"}`;
-                if (r.children && r.children > 0) {
-                  line += `, ${r.children} Child${r.children === 1 ? "" : "ren"}`;
-                }
-                return line;
-              }).join(" • "),
-              sent_at: new Date().toISOString()
-            };
-
-            const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
-            navigator.sendBeacon("https://hooks.zapier.com/hooks/catch/3129081/uw4v30l/", blob);
-          }, 0);
-        };
+        setupPhoneConfirmation(phone, lockedBooking);
       }, 0);
 
-      return; 
+      return;
     }
 
     // ========================================
@@ -1262,106 +1199,117 @@ function showLoadingLeadForm(payload){
     }, 0);
 
     setTimeout(() => {
-      const yesBtn = document.getElementById("phone-yes-btn");
-      const editBtn = document.getElementById("phone-edit-btn");
-      const editWrap = document.getElementById("phone-edit-wrap");
-      const saveBtn = document.getElementById("phone-save-btn");
-      const input = document.getElementById("phone-edit-input");
-      const display = document.getElementById("confirm-phone-display");
-      const confirmArea = document.getElementById("phone-confirmation-area");
-      const countrySelect = document.getElementById("confirm-country-code");
-
-      if (!display || !confirmArea || !input || !countrySelect) return;
-
-      const us = COUNTRIES.find(c => c.label.includes("United States"));
-      const others = COUNTRIES.filter(c => !c.label.includes("United States")).sort((a, b) => a.label.localeCompare(b.label));
-      const SORTED = us ? [us, ...others] : others;
-
-      countrySelect.innerHTML = SORTED.map(c =>
-        `<option value="${c.code}" data-full="${c.label} ${c.code}" data-short="${c.label.split(' ')[0]} ${c.code}">${c.label} ${c.code}</option>`
-      ).join("");
-
-      countrySelect.value = "+1";
-
-      function updateCountryDisplay() {
-        const opt = countrySelect.options[countrySelect.selectedIndex];
-        if (!opt) return;
-        [...countrySelect.options].forEach(o => {
-          if (o.dataset.full) o.text = o.dataset.full;
-        });
-        opt.text = opt.dataset.short;
-      }
-
-      updateCountryDisplay();
-      countrySelect.addEventListener("change", updateCountryDisplay);
-
-      if (editBtn && editWrap) {
-        editBtn.onclick = () => {
-          editWrap.style.display = "block";
-          input.focus();
-        };
-      }
-
-      if (yesBtn) {
-        yesBtn.onclick = () => {
-          confirmArea.innerHTML = `<div style="font-size:15px; font-weight:700; color:#1f7a3f;">Thanks! Our team will connect with you shortly.</div>`;
-          editWrap.style.display = "none";
-        };
-      }
-
-      input.addEventListener("input", () => {
-        if (countrySelect.value !== "+1") return;
-        const digits = input.value.replace(/\D/g, "").slice(0, 10);
-        let out = "";
-        if (digits.length > 0) out += "(" + digits.slice(0, 3);
-        if (digits.length >= 4) out += ") " + digits.slice(3, 6);
-        if (digits.length >= 7) out += "-" + digits.slice(6);
-        input.value = out;
-      });
-
-      if (saveBtn) {
-        saveBtn.onclick = () => {
-          window.__BRP_ZAPIER_SENT__ = false;
-
-          const raw = input.value.replace(/\D/g, "");
-          if (countrySelect.value === "+1" && raw.length !== 10) {
-            alert("Please enter a valid 10-digit phone number.");
-            return;
-          }
-
-          const formatted = `(${raw.slice(0,3)}) ${raw.slice(3,6)}-${raw.slice(6)}`;
-          const fullPhone = `${countrySelect.value} ${formatted}`;
-
-          display.innerHTML = `📞 <b>${fullPhone}</b>`;
-          editWrap.style.display = "none";
-
-          setTimeout(() => {
-            const payload = {
-              event: "phone_updated",
-              name: root.dataset.leadName || "",
-              phone: fullPhone,
-              booking_type: lockedBooking.bookingType || "Hotel Only",
-              hotel_name: getWordPressSiteTitle(),
-              departure_city: "",
-              check_in: lockedBooking.checkIn,
-              check_out: lockedBooking.checkOut,
-              rooms_config: (lockedBooking.rooms || []).map((r, i) => {
-                let line = `Room ${i + 1}: ${r.adults} Adult${r.adults === 1 ? "" : "s"}`;
-                if (r.children && r.children > 0) {
-                  line += `, ${r.children} Child${r.children === 1 ? "" : "ren"}`;
-                }
-                return line;
-              }).join(" • "),
-              sent_at: new Date().toISOString()
-            };
-
-            const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
-            navigator.sendBeacon("https://hooks.zapier.com/hooks/catch/3129081/uw4v30l/", blob);
-          }, 0);
-        };
-      }
+      setupPhoneConfirmation(phone, lockedBooking);
     }, 0);
   });
+}
+
+// ========================================
+// PHONE CONFIRMATION HELPER
+// ========================================
+
+function setupPhoneConfirmation(phone, lockedBooking) {
+  const root = document.getElementById('booking-popup');
+  if (!root) return;
+
+  const yesBtn = document.getElementById("phone-yes-btn");
+  const editBtn = document.getElementById("phone-edit-btn");
+  const editWrap = document.getElementById("phone-edit-wrap");
+  const saveBtn = document.getElementById("phone-save-btn");
+  const input = document.getElementById("phone-edit-input");
+  const display = document.getElementById("confirm-phone-display");
+  const confirmArea = document.getElementById("phone-confirmation-area");
+  const countrySelect = document.getElementById("confirm-country-code");
+
+  if (!display || !confirmArea || !input || !countrySelect) return;
+
+  const us = COUNTRIES.find(c => c.label.includes("United States"));
+  const others = COUNTRIES.filter(c => !c.label.includes("United States")).sort((a, b) => a.label.localeCompare(b.label));
+  const SORTED = us ? [us, ...others] : others;
+
+  countrySelect.innerHTML = SORTED.map(c =>
+    `<option value="${c.code}" data-full="${c.label} ${c.code}" data-short="${c.label.split(' ')[0]} ${c.code}">${c.label} ${c.code}</option>`
+  ).join("");
+
+  countrySelect.value = "+1";
+
+  function updateCountryDisplay() {
+    const opt = countrySelect.options[countrySelect.selectedIndex];
+    if (!opt) return;
+    [...countrySelect.options].forEach(o => {
+      if (o.dataset.full) o.text = o.dataset.full;
+    });
+    opt.text = opt.dataset.short;
+  }
+
+  updateCountryDisplay();
+  countrySelect.addEventListener("change", updateCountryDisplay);
+
+  if (editBtn && editWrap) {
+    editBtn.onclick = () => {
+      editWrap.style.display = "block";
+      input.focus();
+    };
+  }
+
+  if (yesBtn) {
+    yesBtn.onclick = () => {
+      confirmArea.innerHTML = `<div style="font-size:15px; font-weight:700; color:#1f7a3f;">Thanks! Our team will connect with you shortly.</div>`;
+      editWrap.style.display = "none";
+    };
+  }
+
+  input.addEventListener("input", () => {
+    if (countrySelect.value !== "+1") return;
+    const digits = input.value.replace(/\D/g, "").slice(0, 10);
+    let out = "";
+    if (digits.length > 0) out += "(" + digits.slice(0, 3);
+    if (digits.length >= 4) out += ") " + digits.slice(3, 6);
+    if (digits.length >= 7) out += "-" + digits.slice(6);
+    input.value = out;
+  });
+
+  if (saveBtn) {
+    saveBtn.onclick = () => {
+      window.__BRP_ZAPIER_SENT__ = false;
+
+      const raw = input.value.replace(/\D/g, "");
+      if (countrySelect.value === "+1" && raw.length !== 10) {
+        alert("Please enter a valid 10-digit phone number.");
+        return;
+      }
+
+      const formatted = `(${raw.slice(0,3)}) ${raw.slice(3,6)}-${raw.slice(6)}`;
+      const fullPhone = `${countrySelect.value} ${formatted}`;
+
+      display.innerHTML = `📞 <b>${fullPhone}</b>`;
+      editWrap.style.display = "none";
+
+      setTimeout(() => {
+        const payload = {
+          event: "phone_updated",
+          name: root.dataset.leadName || "",
+          phone: fullPhone,
+          booking_type: lockedBooking.bookingType || "Hotel Only",
+          hotel_name: getWordPressSiteTitle(),
+          departure_city: lockedBooking.departure || "",
+          check_in: lockedBooking.checkIn,
+          check_out: lockedBooking.checkOut,
+          rooms_config: (lockedBooking.rooms || []).map((r, i) => {
+            let line = `Room ${i + 1}: ${r.adults} Adult${r.adults === 1 ? "" : "s"}`;
+            if (r.children && r.children > 0) {
+              line += `, ${r.children} Child${r.children === 1 ? "" : "ren"}`;
+            }
+            return line;
+          }).join(" • "),
+          sent_at: new Date().toISOString()
+        };
+
+        const blob = new Blob([JSON.stringify(payload)], { type: "text/plain" });
+        navigator.sendBeacon("https://hooks.zapier.com/hooks/catch/3129081/uw4v30l/", blob);
+      }, 0);
+    };
+  }
 }
 
 // ========================================
@@ -1370,7 +1318,10 @@ function showLoadingLeadForm(payload){
 
 function initBookingPopup() {
   const root = document.getElementById('booking-popup');
-  if (!root) return;
+  if (!root) {
+    console.warn("⚠️ #booking-popup not found — delaying init");
+    return;
+  }
 
   if (!__BRP_TEMPLATE_HTML__) {
     __BRP_TEMPLATE_HTML__ = root.innerHTML;
@@ -1383,6 +1334,11 @@ function initBookingPopup() {
   const radios = qa('input[name="booking_type"]');
   const depContainer = q('#departure_city_container');
   const depInput     = q('#departure_city_field');
+
+  if (!depContainer || !depInput) {
+    console.error("❌ Critical elements missing in popup");
+    return;
+  }
 
   function getType(){
     return q('input[name="booking_type"]:checked')?.value || "Hotel Only";
@@ -1408,6 +1364,11 @@ function initBookingPopup() {
   const roomsWrap = q('#rg-rooms');
   const roomsCountEl  = q('#rg-rooms-count');
   const guestsCountEl = q('#rg-guests-count');
+
+  if (!shell || !summary || !addBtn || !collapse || !roomsWrap || !roomsCountEl || !guestsCountEl) {
+    console.error("❌ Rooms/Guests UI elements missing");
+    return;
+  }
 
   let rooms=[{adults:2,children:0}];
 
@@ -1474,7 +1435,7 @@ function initBookingPopup() {
       rooms = [{ adults: Math.min(2, ACTIVE_MAX_ADULTS), children: 0 }];
     }
 
-    addBtn.style.display = "inline-block";
+    if (addBtn) addBtn.style.display = "inline-block";
     renderRooms();
     refreshSummary();
     updateAddRoomState();
@@ -1548,6 +1509,11 @@ function initBookingPopup() {
   const ciWrap = q('#ci-wrap');
   const coWrap = q('#co-wrap');
 
+  if (!checkin || !checkout) {
+    console.error("❌ Date fields missing");
+    return;
+  }
+
   const today = new Date();
   const todayISO = toLocalISO(today);
 
@@ -1563,8 +1529,9 @@ function initBookingPopup() {
     try{ if(el.showPicker) el.showPicker(); }catch(_){}
     el.focus({preventScroll:true});
   }
-  ciWrap.addEventListener('click',()=>openPicker(checkin));
-  coWrap.addEventListener('click',()=>openPicker(checkout));
+
+  if (ciWrap) ciWrap.addEventListener('click',()=>openPicker(checkin));
+  if (coWrap) coWrap.addEventListener('click',()=>openPicker(checkout));
   checkin.addEventListener('click',()=>openPicker(checkin));
   checkout.addEventListener('click',()=>openPicker(checkout));
 
@@ -1646,6 +1613,11 @@ function initBookingPopup() {
   });
 
   const btn = q("#brp-check-btn");
+  if (!btn) {
+    console.error("❌ Check availability button missing");
+    return;
+  }
+
   btn.addEventListener("click", (e)=>{
     e.preventDefault();
 
@@ -1763,6 +1735,9 @@ function initBookingPopup() {
     ACTIVE_MAX_CHILDREN,
     ACTIVE_MAX_ROOMS
   });
+
+  // Re-init popup after limits are loaded
+  initBookingPopup();
 })();
 
 // ========================================
@@ -1778,6 +1753,8 @@ window.__BRP_RESET__ = function () {
   root.innerHTML = __BRP_TEMPLATE_HTML__;
   initBookingPopup();
 };
+
+} // ⬅️ END initWidget wrapper
 
 })();
 </script>
