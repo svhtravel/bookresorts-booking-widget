@@ -590,31 +590,42 @@
 </div>
 
 <script>
-// ============================================
-// IMMEDIATELY EXPOSE GLOBAL WIDGET INTERFACE
-// ============================================
 (function() {
   'use strict';
 
-  window.BR_WIDGET_READY = false;
-  window.BR_WIDGET_QUEUE = [];
+  console.log('🚀 Widget script starting...');
 
-  // Global opener function
-  window.openBookingWidget = function() {
-    console.log('📞 openBookingWidget called, ready:', window.BR_WIDGET_READY);
-    if (window.BR_WIDGET_READY && window.__BR_OPEN_INTERNAL__) {
-      window.__BR_OPEN_INTERNAL__();
-    } else {
-      console.log('⏳ Widget not ready, queueing...');
-      window.BR_WIDGET_QUEUE.push('open');
-    }
-  };
+  // Ensure we wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeWidget);
+  } else {
+    initializeWidget();
+  }
 
-  window.BRJ = {
-    open: window.openBookingWidget
-  };
+  function initializeWidget() {
+    window.BR_WIDGET_READY = false;
+    window.BR_WIDGET_QUEUE = [];
 
-  console.log('✅ Global widget interface ready');
+    // Global opener function
+    window.openBookingWidget = function() {
+      console.log('📞 openBookingWidget called, ready:', window.BR_WIDGET_READY);
+      if (window.BR_WIDGET_READY && window.__BR_OPEN_INTERNAL__) {
+        window.__BR_OPEN_INTERNAL__();
+      } else {
+        console.log('⏳ Widget not ready, queueing...');
+        window.BR_WIDGET_QUEUE.push('open');
+      }
+    };
+
+    window.BRJ = {
+      open: window.openBookingWidget
+    };
+
+    console.log('✅ Global widget interface ready');
+
+    // REST OF THE EXISTING CLOUDFLARE CODE...
+    // (Keep everything else the same - just wrap it in initializeWidget)
+  }
 })();
 </script>
 
