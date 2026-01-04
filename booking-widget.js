@@ -4,6 +4,10 @@
 
 (function () {
 
+   // === Helpers (DO NOT REMOVE) ===
+const q  = (sel, root=document) => root.querySelector(sel);
+const qa = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
    let lockedBooking = null;
 
   // Prevent loading twice
@@ -641,13 +645,24 @@ container.innerHTML = `
   
   `.trim();
 
-  // 3) JS logic (run after HTML exists)
+   // ✅ SAVE ORIGINAL POPUP TEMPLATE (ONLY ONCE)
+if (!window.__BRP_TEMPLATE_HTML__) {
+  const root = document.getElementById("brp-root");
+  if (root) window.__BRP_TEMPLATE_HTML__ = root.innerHTML;
+}
 
-// ✅ Capture the original booking form HTML ONCE (before any spinner replaces it)
-let __BRP_TEMPLATE_HTML__ = null;
+  // 3) JS logic (run after HTML exists)
 
 function initBookingPopup() {
 
+   const root = document.getElementById("brp-root");
+if (!root) return;
+
+// Ensure template always exists
+if (!window.__BRP_TEMPLATE_HTML__) {
+  window.__BRP_TEMPLATE_HTML__ = root.innerHTML;
+}
+   
   // ✅ Prefill (TOP ONLY)
   if (window.__BRP_PREFILL__) {
     const data = window.__BRP_PREFILL__;
@@ -1166,8 +1181,12 @@ const LOCKED_BOOKING = {
 
 container.dataset.pendingBooking = JSON.stringify(LOCKED_BOOKING);
 
-    container.innerHTML = `
-      <div class="brp-lead-wrap">
+const popupRoot = document.getElementById("brp-root");
+if (!popupRoot) return;
+
+popupRoot.innerHTML = `
+     
+     <div class="brp-lead-wrap">
         <div class="brp-spinner" aria-label="Loading"></div>
         <div class="brp-rotator" id="brp-rotator">${ROTATE_PHRASES[0]}</div>
 
@@ -1435,7 +1454,10 @@ if (bookingType === "Hotel + Flight") {
 container.dataset.leadName = name;
 
   // ✅ FINAL RECAP UI (NO PRICING)
-  root.innerHTML = `
+  const popupRoot = document.getElementById("brp-root");
+  if (!popupRoot) return;
+
+  popupRoot.innerHTML = `
   <div class="brp-lead-wrap">
 
     <div class="brp-success">
@@ -1755,7 +1777,10 @@ const workerUrl =
       clearInterval(rotateTimer);
 
 // show loading while worker runs
-container.innerHTML = `
+const popupRoot = document.getElementById("brp-root");
+if (!popupRoot) return;
+
+popupRoot.innerHTML = `
   <div class="brp-lead-wrap">
     <div class="brp-spinner"></div>
     <div class="brp-rotator">Comparing the best available rates…</div>
@@ -1784,7 +1809,10 @@ if (!results || !results.length) {
 }
 
 // ✅ Rates found — render results
-container.innerHTML = `
+const resultsRoot = document.getElementById("brp-root");
+if (!resultsRoot) return;
+
+resultsRoot.innerHTML = `
   <div class="brp-lead-wrap">
 <div class="brp-success">
   Well done, ${name} — you’re officially getting the best deal.
@@ -2295,7 +2323,8 @@ setTimeout(() => enforceRoomsRules(), 0);
   });
   depInput.addEventListener('focus', ()=>{ if(dropdown.innerHTML.trim()) show(); });
   document.addEventListener('click', (e)=>{
-    const inside = root.contains(e.target) && depContainer.contains(e.target);
+const popupRoot = document.getElementById("brp-root");
+const inside = popupRoot && popupRoot.contains(e.target) && depContainer.contains(e.target);
     if(!inside) hide();
   });
 
@@ -2381,12 +2410,25 @@ const waitForPopup = setInterval(() => {
 
 // ♻️ Expose reset hook (restore template + re-init)
 window.__BRP_RESET__ = function () {
-const root = document.getElementById("brp-root");
-  if (!root || !__BRP_TEMPLATE_HTML__) return;
+  const root = document.getElementById("brp-root");
+  const tpl = window.__BRP_TEMPLATE_HTML__;
+  if (!root || !tpl) return;
 
-  // Restore the original booking form DOM
-  root.innerHTML = __BRP_TEMPLATE_HTML__;
+  // Restore original booking UI
+  root.innerHTML = tpl;
 
+  // Hide error box if visible
+  const errorBox = document.getElementById("brp-error");
+  if (errorBox) errorBox.style.display = "none";
+
+  // Re-bind all popup logic
+  setTimeout(() => {
+    try {
+      initBookingPopup();
+    } catch (e) {
+      console.warn("Popup re-init failed", e);
+    }
+  }, 50);
 };
 
 
