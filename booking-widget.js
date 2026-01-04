@@ -603,6 +603,40 @@
 </div>
 
 <script>
+
+// CRITICAL FIX: Define openBookingWidget globally
+window.openBookingWidget = function() {
+  console.log('✅ openBookingWidget called');
+  
+  const root = document.getElementById('booking-popup');
+  if (!root) {
+    console.error('❌ booking-popup element not found');
+    return;
+  }
+
+  // Reset any error states
+  sessionStorage.removeItem("brp_no_rates_error");
+  const errorBox = document.getElementById("brp-error");
+  if (errorBox) {
+    errorBox.style.display = "none";
+  }
+
+  // If popup already has content, reinit it
+  if (window.__BRP_RESET__) {
+    window.__BRP_RESET__();
+  }
+
+  // Trigger the init
+  if (typeof initBookingPopup === 'function') {
+    initBookingPopup();
+  }
+};
+
+// Make BRJ globally accessible
+window.BRJ = {
+  open: window.openBookingWidget
+};
+    
 (function(){
 
 // ========================================
